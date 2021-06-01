@@ -1,105 +1,22 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# minecraft-server-start-test
+[![ci status](https://github.com/anatawa12/minecraft-server-start-test/workflows/build-test/badge.svg)](https://github.com/anatawa12/minecraft-server-start-test/actions)
+[![a12 maintenance: Slowly](https://anatawa12.com/short.php?q=a12-slowly-svg)](https://anatawa12.com/short.php?q=a12-slowly-doc)
+[![latest release](https://img.shields.io/github/v/release/anatawa12/minecraft-server-start-test)](https://github.com/anatawa12/minecraft-server-start-test/releases/latest)
 
-# Create a JavaScript Action using TypeScript
+An action to check a mod can be launched with server. currently supports server.
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+## Parameters(planned)
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+| name         | is optional | Default  | description
+| ---          | ----------- | -------- | ----
+| server_type  | optional    | forge    | The minecraft server type. by default, and currently supports only forge
+| version      | required    |          | The version of minecraft server. For forge, the version number in installer jar like `1.12.2-14.23.5.2855` or `1.7.10-10.13.4.1614-1.7.10` are valid.
+| sleep_time   | optional    | 0s       | The time before sending 'stop' command after FMLServerStartedEvent. You can specify in seconds or ticks.
+| timeout      | optional    | (none)   | Timeout until server started. if timeout reached, this action will falls
+| world_data   | optional    | (none)   | The path to minecraft world data.
+| mods         | optional    | (none)   | The path to your mods folder.
+| mod_jar      | optional    | (none)   | The path to your mod jar. This will be added to mods directory.
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
-
-## Create an action from this template
-
-Click the `Use this Template` and provide the new repo details for your action
-
-## Code in Main
-
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
-
-Install the dependencies  
-```bash
-$ npm install
-```
-
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
-
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml contains defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
-```yaml
-uses: ./
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+## Limitations(planned)
+- You can't name your mod(s) starting with `.com.anatawa12.minecraft-server-auto-closer`.
+  it will be an error.
