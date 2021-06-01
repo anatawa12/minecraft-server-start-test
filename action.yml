@@ -2,10 +2,33 @@ name: 'Your name here'
 description: 'Provide a description here'
 author: 'Your name or organization here'
 inputs:
-  milliseconds: # change this
+  server_type:
+    required: false
+    default: forge
+    description: The minecraft server type. by default, and currently supports only forge
+  version:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: The version of minecraft server. For forge, the version number in installer jar like `1.12.2-14.23.5.2855` or `1.7.10-10.13.4.1614-1.7.10` are valid.
+  sleep_time:
+    required: false
+    default: 0s
+    description: The time before sending 'stop' command after FMLServerStartedEvent. You can specify in seconds or ticks.
+  timeout:
+    required: false
+    default: (none)
+    description: Timeout until server started. if timeout reached, this action will falls
+  world_data:
+    required: false
+    default: (none)
+    description: The path to minecraft world data.
+  mods:
+    required: false
+    default: (none)
+    description: The path to your mods folder.
+  mod_jar:
+    required: false
+    default: (none)
+    description: The path to your mod jar. This will be added to mods directory.
 runs:
   using: 'node12'
   main: 'dist/index.js'
