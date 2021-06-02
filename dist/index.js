@@ -77,10 +77,7 @@ function prepareMinecraftServerAutoCloser(workDir, configData) {
         if (!res.ok)
             throw new Error(`downloading minecraft-server-auto-closer: invalid response: ${res.status} ${res.statusText} ` +
                 `downloading ${asset.browser_download_url}`);
-        const write = fs.createWriteStream(jarPath);
-        res.body.pipe(write);
-        yield util_1.waitForFinish(res.body);
-        write.close();
+        yield util_1.pipeAndWaitThenClose(res.body, fs.createWriteStream(jarPath));
         yield fs.writeFile(path_1.default.join(workDir, 'config', 'minecraft-server-auto-closer.txt'), configData);
     });
 }
@@ -213,10 +210,7 @@ function parseProvider(server_type, version) {
                     throw new Error(`downloading forge installer for ${version} failed: ` +
                         `invalid response code: ${res.status} ${res.statusText}`);
                 const installerJarPath = (yield tmp_promise_1.file({ postfix: jarName })).path;
-                const installerJarWriter = fs.createWriteStream(installerJarPath);
-                res.body.pipe(installerJarWriter);
-                yield util_1.waitForFinish(res.body);
-                installerJarWriter.close();
+                yield util_1.pipeAndWaitThenClose(res.body, fs.createWriteStream(installerJarPath));
                 // install jar
                 yield exec_1.exec('java', ['-jar', installerJarPath, '--installServer'], {
                     cwd: work,
@@ -311,13 +305,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.waitForFinish = void 0;
-function waitForFinish(stream) {
+exports.pipeAndWaitThenClose = void 0;
+function pipeAndWaitThenClose(read, write) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield new Promise(fulfill => stream.on('finish', fulfill));
+        read.pipe(write);
+        yield new Promise(fulfill => write.on('finish', fulfill));
     });
 }
-exports.waitForFinish = waitForFinish;
+exports.pipeAndWaitThenClose = pipeAndWaitThenClose;
 
 
 /***/ }),

@@ -43,7 +43,10 @@ export function parseProvider(
               `invalid response code: ${res.status} ${res.statusText}`,
           )
         const installerJarPath = (await tempFile({postfix: jarName})).path
-        await pipeAndWaitThenClose(res.body, fs.createWriteStream(installerJarPath))
+        await pipeAndWaitThenClose(
+          res.body,
+          fs.createWriteStream(installerJarPath),
+        )
 
         // install jar
         await exec('java', ['-jar', installerJarPath, '--installServer'], {
