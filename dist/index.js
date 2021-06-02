@@ -205,13 +205,14 @@ function parseProvider(server_type, version) {
     switch (server_type.toLowerCase()) {
         case 'forge':
             return (work) => __awaiter(this, void 0, void 0, function* () {
+                const jarName = `forge-${version}-installer.jar`;
                 // download installer
                 const res = yield node_fetch_1.default(`https://maven.minecraftforge.net/net/minecraftforge/forge` +
-                    `/${version}/forge-${version}-installer.jar`);
+                    `/${version}/${jarName}`);
                 if (!res.ok)
                     throw new Error(`downloading forge installer for ${version} failed: ` +
                         `invalid response code: ${res.status} ${res.statusText}`);
-                const installerJarPath = (yield tmp_promise_1.file({ postfix: '.jar' })).path;
+                const installerJarPath = (yield tmp_promise_1.file({ postfix: jarName })).path;
                 const installerJarWriter = fs.createWriteStream(installerJarPath);
                 res.body.pipe(installerJarWriter);
                 yield util_1.waitForFinish(res.body);
@@ -221,7 +222,7 @@ function parseProvider(server_type, version) {
                     cwd: work,
                 });
                 yield fs.rm(installerJarPath);
-                return `forge-${version}-installer.jar`;
+                return jarName;
             });
         default:
             throw new Error(`unsupported server_type: ${server_type}`);
