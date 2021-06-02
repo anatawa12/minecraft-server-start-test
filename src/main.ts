@@ -5,6 +5,7 @@ import path from 'path'
 import fetch from 'node-fetch'
 import {GitHub} from '@actions/github/lib/utils'
 import {exec} from '@actions/exec'
+import {waitForFinish} from './util'
 
 async function copyDataDir(
   output: string,
@@ -55,6 +56,7 @@ async function prepareMinecraftServerAutoCloser(
 
   const write = fs.createWriteStream(jarPath)
   res.body.pipe(write)
+  await waitForFinish(res.body)
   write.close()
 
   await fs.writeFile(

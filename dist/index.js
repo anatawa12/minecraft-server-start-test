@@ -46,6 +46,7 @@ const path_1 = __importDefault(__webpack_require__(5622));
 const node_fetch_1 = __importDefault(__webpack_require__(467));
 const utils_1 = __webpack_require__(3030);
 const exec_1 = __webpack_require__(1514);
+const util_1 = __webpack_require__(4024);
 function copyDataDir(output, [dir, dirMessage], [file, fileMessage]) {
     return __awaiter(this, void 0, void 0, function* () {
         if (dir && dir !== '') {
@@ -78,6 +79,7 @@ function prepareMinecraftServerAutoCloser(workDir, configData) {
                 `downloading ${asset.browser_download_url}`);
         const write = fs.createWriteStream(jarPath);
         res.body.pipe(write);
+        yield util_1.waitForFinish(res.body);
         write.close();
         yield fs.writeFile(path_1.default.join(workDir, 'config', 'minecraft-server-auto-closer.txt'), configData);
     });
@@ -198,6 +200,7 @@ const tmp_promise_1 = __webpack_require__(8065);
 const fs = __importStar(__webpack_require__(5630));
 const parse_duration_1 = __importDefault(__webpack_require__(3805));
 const exec_1 = __webpack_require__(1514);
+const util_1 = __webpack_require__(4024);
 function parseProvider(server_type, version) {
     switch (server_type.toLowerCase()) {
         case 'forge':
@@ -211,6 +214,7 @@ function parseProvider(server_type, version) {
                 const installerJarPath = (yield tmp_promise_1.file({ postfix: '.jar' })).path;
                 const installerJarWriter = fs.createWriteStream(installerJarPath);
                 res.body.pipe(installerJarWriter);
+                yield util_1.waitForFinish(res.body);
                 installerJarWriter.close();
                 // install jar
                 yield exec_1.exec('java', ['-jar', installerJarPath, '--installServer'], {
@@ -287,6 +291,32 @@ exports.parseParameters = parseParameters;
 function throwError(msg) {
     throw new Error(msg);
 }
+
+
+/***/ }),
+
+/***/ 4024:
+/***/ (function(__unused_webpack_module, exports) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.waitForFinish = void 0;
+function waitForFinish(stream) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield new Promise(fulfill => stream.on('finish', fulfill));
+    });
+}
+exports.waitForFinish = waitForFinish;
 
 
 /***/ }),
