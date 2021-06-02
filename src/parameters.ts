@@ -5,8 +5,12 @@ import * as fs from 'fs-extra'
 import {default as parseDuration} from 'parse-duration'
 import exec from '@actions/exec'
 
-interface ActionParameters {
-  serverProvider(dir: string): Promise<void>
+export interface ActionParameters {
+  /**
+   * @param dir the directory for server
+   * @returns the path or name of jar file to start the server
+   */
+  serverProvider(dir: string): Promise<string>
   // the format can be used in config file.
   sleepTimeConfig: string
   workDir: string
@@ -22,7 +26,7 @@ interface ActionParameters {
 function parseProvider(
   server_type: string,
   version: string,
-): (work: string) => Promise<void> {
+): (work: string) => Promise<string> {
   switch (server_type.toLowerCase()) {
     case 'forge':
       return async work => {
@@ -46,6 +50,7 @@ function parseProvider(
           cwd: work,
         })
         await fs.rm(installerJarPath)
+        return `forge-${version}-installer.jar`
       }
     default:
       throw new Error(`unsupported server_type: ${server_type}`)
