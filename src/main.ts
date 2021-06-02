@@ -5,7 +5,7 @@ import path from 'path'
 import fetch from 'node-fetch'
 import {GitHub} from '@actions/github/lib/utils'
 import {exec} from '@actions/exec'
-import {pipeAndWait} from './util'
+import {pipeAndWaitThenClose} from './util'
 
 async function copyDataDir(
   output: string,
@@ -54,9 +54,7 @@ async function prepareMinecraftServerAutoCloser(
         `downloading ${asset.browser_download_url}`,
     )
 
-  const write = fs.createWriteStream(jarPath)
-  await pipeAndWait(res.body, write)
-  write.close()
+  await pipeAndWaitThenClose(res.body, fs.createWriteStream(jarPath))
 
   await fs.writeFile(
     path.join(workDir, 'config', 'minecraft-server-auto-closer.txt'),

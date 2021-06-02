@@ -4,7 +4,7 @@ import {file as tempFile, dir as tempDir} from 'tmp-promise'
 import * as fs from 'fs-extra'
 import {default as parseDuration} from 'parse-duration'
 import {exec} from '@actions/exec'
-import {pipeAndWait} from './util'
+import {pipeAndWaitThenClose} from './util'
 
 export interface ActionParameters {
   /**
@@ -43,9 +43,7 @@ export function parseProvider(
               `invalid response code: ${res.status} ${res.statusText}`,
           )
         const installerJarPath = (await tempFile({postfix: jarName})).path
-        const installerJarWriter = fs.createWriteStream(installerJarPath)
-        await pipeAndWait(res.body, installerJarWriter)
-        installerJarWriter.close()
+        await pipeAndWaitThenClose(res.body, fs.createWriteStream(installerJarPath))
 
         // install jar
         await exec('java', ['-jar', installerJarPath, '--installServer'], {

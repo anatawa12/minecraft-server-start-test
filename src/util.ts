@@ -3,10 +3,10 @@ import ReadableStream = NodeJS.ReadableStream
 // eslint-disable-next-line no-undef
 import WritableStream = NodeJS.WritableStream
 
-export async function pipeAndWait(
+export async function pipeAndWaitThenClose(
   read: ReadableStream,
   write: WritableStream,
 ): Promise<void> {
   read.pipe(write)
-  await new Promise(fulfill => read.on('finish', fulfill))
+  await new Promise(fulfill => write.on('finish', fulfill))
 }
