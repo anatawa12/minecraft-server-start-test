@@ -6,7 +6,6 @@ import {default as parseDuration} from 'parse-duration'
 import exec from '@actions/exec'
 
 interface ActionParameters {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   serverProvider(dir: string): Promise<void>
   // the format can be used in config file.
   sleepTimeConfig: string
@@ -20,7 +19,6 @@ interface ActionParameters {
 function parseProvider(
   server_type: string,
   version: string
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 ): (work: string) => Promise<void> {
   switch (server_type.toLowerCase()) {
     case 'forge':
