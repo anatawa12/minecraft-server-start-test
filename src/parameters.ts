@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import fetch from 'node-fetch'
 import {file as tempFile, dir as tempDir} from 'tmp-promise'
-import * as fs from 'fs'
+import * as fs from 'fs-extra'
 import {default as parseDuration} from 'parse-duration'
 import exec from '@actions/exec'
 
@@ -43,7 +43,7 @@ function parseProvider(
         await exec.exec('java', ['-jar', installerJarPath, '--installServer'], {
           cwd: work
         })
-        await fs.promises.rm(installerJarPath)
+        await fs.rm(installerJarPath)
       }
     default:
       throw new Error(`unsupported server_type: ${server_type}`)
