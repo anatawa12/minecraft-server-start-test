@@ -14,7 +14,9 @@ interface ActionParameters {
   timeout: number
   worldData: string
   modJar: string
-  mods: string
+  modsDir: string
+  configFile: string
+  configDir: string
 }
 
 function parseProvider(
@@ -85,8 +87,10 @@ export async function parseParameters(): Promise<ActionParameters> {
   const sleep_time = core.getInput('sleep_time')
   const timeout = core.getInput('timeout')
   const world_data = core.getInput('world_data')
-  const mods = core.getInput('mods')
+  const mods_dir = core.getInput('mods_dir')
   const mod_jar = core.getInput('mod_jar')
+  const config_dir = core.getInput('config_dir')
+  const config_file = core.getInput('config_file')
 
   return {
     serverProvider: parseProvider(server_type, version),
@@ -96,7 +100,9 @@ export async function parseParameters(): Promise<ActionParameters> {
       parseDuration(timeout) ?? throwError(`invalid timeout: ${timeout}`),
     worldData: world_data,
     modJar: mod_jar,
-    mods
+    modsDir: mods_dir,
+    configFile: config_file,
+    configDir: config_dir
   }
 }
 

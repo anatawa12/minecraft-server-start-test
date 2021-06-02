@@ -21,7 +21,7 @@ inputs:
     required: false
     default: (none)
     description: The path to minecraft world data.
-  mods:
+  mods_dir:
     required: false
     default: (none)
     description: The path to your mods folder.
@@ -29,6 +29,14 @@ inputs:
     required: false
     default: (none)
     description: The path to your mod jar. This will be added to mods directory.
+  config_dir:
+    required: false
+    default: (none)
+    description: The path to your config folder.
+  config_jar:
+    required: false
+    default: (none)
+    description: The path to your config jar. This will be added to config directory.
 runs:
   using: 'node12'
   main: 'dist/index.js'

@@ -15,8 +15,10 @@ An action to check a mod can be launched with server. currently supports server.
 | sleep_time   | optional    | 0s       | The time before sending 'stop' command after FMLServerStartedEvent. You can specify in seconds or ticks.
 | timeout      | optional    | (none)   | Timeout until server started. if timeout reached, this action will falls
 | world_data   | optional    | (none)   | The path to minecraft world data.
-| mods         | optional    | (none)   | The path to your mods folder.
+| mods_dir     | optional    | (none)   | The path to your mods folder.
 | mod_jar      | optional    | (none)   | The path to your mod jar. This will be added to mods directory.
+| configs      | optional    | (none)   | The path to your config folder.
+| config_file  | optional    | (none)   | The path to your config file. This will be added to config directory.
 
 ## Limitations(planned)
 - You can't name your mod(s) starting with `.com.anatawa12.minecraft-server-start-test`.
