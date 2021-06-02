@@ -3,7 +3,7 @@ import fetch from 'node-fetch'
 import {file as tempFile, dir as tempDir} from 'tmp-promise'
 import * as fs from 'fs-extra'
 import {default as parseDuration} from 'parse-duration'
-import exec from '@actions/exec'
+import {exec} from '@actions/exec'
 
 export interface ActionParameters {
   /**
@@ -46,7 +46,7 @@ export function parseProvider(
         installerJarWriter.close()
 
         // install jar
-        await exec.exec('java', ['-jar', installerJarPath, '--installServer'], {
+        await exec('java', ['-jar', installerJarPath, '--installServer'], {
           cwd: work,
         })
         await fs.rm(installerJarPath)

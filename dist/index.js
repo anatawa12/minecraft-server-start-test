@@ -197,7 +197,7 @@ const node_fetch_1 = __importDefault(__webpack_require__(467));
 const tmp_promise_1 = __webpack_require__(8065);
 const fs = __importStar(__webpack_require__(5630));
 const parse_duration_1 = __importDefault(__webpack_require__(3805));
-const exec_1 = __importDefault(__webpack_require__(1514));
+const exec_1 = __webpack_require__(1514);
 function parseProvider(server_type, version) {
     switch (server_type.toLowerCase()) {
         case 'forge':
@@ -213,7 +213,7 @@ function parseProvider(server_type, version) {
                 res.body.pipe(installerJarWriter);
                 installerJarWriter.close();
                 // install jar
-                yield exec_1.default.exec('java', ['-jar', installerJarPath, '--installServer'], {
+                yield exec_1.exec('java', ['-jar', installerJarPath, '--installServer'], {
                     cwd: work,
                 });
                 yield fs.rm(installerJarPath);
