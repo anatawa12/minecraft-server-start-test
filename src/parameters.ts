@@ -15,7 +15,7 @@ export interface ActionParameters {
   sleepTimeConfig: string
   workDir: string
   // in milliseconds
-  timeout: number
+  timeout: number | null
   worldData: string
   modJar: string
   modsDir: string
@@ -23,7 +23,7 @@ export interface ActionParameters {
   configDir: string
 }
 
-function parseProvider(
+export function parseProvider(
   server_type: string,
   version: string,
 ): (work: string) => Promise<string> {
@@ -102,7 +102,9 @@ export async function parseParameters(): Promise<ActionParameters> {
     workDir: await parseWorkDir(work_dir),
     sleepTimeConfig: parseSleepTime(sleep_time),
     timeout:
-      parseDuration(timeout) ?? throwError(`invalid timeout: ${timeout}`),
+      timeout === ''
+        ? null
+        : parseDuration(timeout) ?? throwError(`invalid timeout: ${timeout}`),
     worldData: world_data,
     modJar: mod_jar,
     modsDir: mods_dir,

@@ -97,12 +97,21 @@ async function prepareEnvironment(params: ActionParameters): Promise<string> {
   return serverName
 }
 
-async function timeoutError(timeout: number, message: string): Promise<never> {
-  await new Promise<never>((resolve, reject) => {
-    setTimeout(() => {
-      reject(new Error(message))
-    }, timeout)
-  })
+async function timeoutError(
+  timeout: number | null,
+  message: string,
+): Promise<never> {
+  if (!timeout) {
+    await new Promise<never>(() => {
+      // never resolved.
+    })
+  } else {
+    await new Promise<never>((resolve, reject) => {
+      setTimeout(() => {
+        reject(new Error(message))
+      }, timeout)
+    })
+  }
   throw new Error(`logic failure: after awaiting never function`)
 }
 
