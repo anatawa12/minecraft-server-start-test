@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import fetch from 'node-fetch'
-import {file as tempFile} from 'tmp-promise'
+import {file as tempFile, dir as tempDir} from 'tmp-promise'
 import * as fs from 'fs'
 import {default as parseDuration} from 'parse-duration'
 import exec from '@actions/exec'
@@ -9,6 +9,7 @@ interface ActionParameters {
   serverProvider(dir: string): Promise<void>
   // the format can be used in config file.
   sleepTimeConfig: string
+  workDir: string
   // in milliseconds
   timeout: number
   worldData: string
@@ -72,9 +73,15 @@ function parseSleepTime(sleep_time: string): string {
   return `${number} ${unit}`
 }
 
-export function parseParameters(): ActionParameters {
+async function parseWorkDir(work_dir: string): Promise<string> {
+  if (work_dir === '') return (await tempDir()).path
+  else return work_dir
+}
+
+export async function parseParameters(): Promise<ActionParameters> {
   const server_type = core.getInput('server_type')
   const version = core.getInput('version')
+  const work_dir = core.getInput('work_dir')
   const sleep_time = core.getInput('sleep_time')
   const timeout = core.getInput('timeout')
   const world_data = core.getInput('world_data')
@@ -83,6 +90,7 @@ export function parseParameters(): ActionParameters {
 
   return {
     serverProvider: parseProvider(server_type, version),
+    workDir: await parseWorkDir(work_dir),
     sleepTimeConfig: parseSleepTime(sleep_time),
     timeout:
       parseDuration(timeout) ?? throwError(`invalid timeout: ${timeout}`),
