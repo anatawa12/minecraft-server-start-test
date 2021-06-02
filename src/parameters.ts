@@ -21,7 +21,7 @@ interface ActionParameters {
 
 function parseProvider(
   server_type: string,
-  version: string
+  version: string,
 ): (work: string) => Promise<void> {
   switch (server_type.toLowerCase()) {
     case 'forge':
@@ -29,12 +29,12 @@ function parseProvider(
         // download installer
         const res = await fetch(
           `https://maven.minecraftforge.net/net/minecraftforge/forge` +
-            `/${version}/forge-${version}-installer.jar`
+            `/${version}/forge-${version}-installer.jar`,
         )
         if (!res.ok)
           throw new Error(
             `downloading forge installer for ${version} failed: ` +
-              `invalid response code: ${res.status} ${res.statusText}`
+              `invalid response code: ${res.status} ${res.statusText}`,
           )
         const installerJarPath = (await tempFile({postfix: '.jar'})).path
         const installerJarWriter = fs.createWriteStream(installerJarPath)
@@ -43,7 +43,7 @@ function parseProvider(
 
         // install jar
         await exec.exec('java', ['-jar', installerJarPath, '--installServer'], {
-          cwd: work
+          cwd: work,
         })
         await fs.rm(installerJarPath)
       }
@@ -102,7 +102,7 @@ export async function parseParameters(): Promise<ActionParameters> {
     modJar: mod_jar,
     modsDir: mods_dir,
     configFile: config_file,
-    configDir: config_dir
+    configDir: config_dir,
   }
 }
 
