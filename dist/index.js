@@ -78,6 +78,7 @@ function prepareMinecraftServerAutoCloser(workDir, configData) {
             throw new Error(`downloading minecraft-server-auto-closer: invalid response: ${res.status} ${res.statusText} ` +
                 `downloading ${asset.browser_download_url}`);
         yield util_1.pipeAndWaitThenClose(res.body, fs.createWriteStream(jarPath));
+        yield fs.ensureDir(path_1.default.join(workDir, 'config'));
         yield fs.writeFile(path_1.default.join(workDir, 'config', 'minecraft-server-auto-closer.txt'), configData);
     });
 }
