@@ -56,6 +56,7 @@ async function prepareMinecraftServerAutoCloser(
 
   await pipeAndWaitThenClose(res.body, fs.createWriteStream(jarPath))
 
+  await fs.ensureDir(path.join(workDir, 'config'))
   await fs.writeFile(
     path.join(workDir, 'config', 'minecraft-server-auto-closer.txt'),
     configData,
