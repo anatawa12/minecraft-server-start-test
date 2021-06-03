@@ -54,7 +54,17 @@ export function parseProvider(
           cwd: work,
         })
         await fs.unlink(installerJarPath)
-        return jarName
+
+        const forgeRuns = (await fs.readdir(work)).filter(
+          x => x.startsWith('forge') && x.endsWith('.jar'),
+        )
+        if (forgeRuns.length === 0) {
+          throw new Error('no server forge jar found! please report me!')
+        } else if (forgeRuns.length !== 1) {
+          throw new Error('multiple server forge jar found! please report me!')
+        }
+
+        return forgeRuns[0]
       }
     default:
       throw new Error(`unsupported server_type: ${server_type}`)
