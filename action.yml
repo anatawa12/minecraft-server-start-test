@@ -37,3 +37,6 @@ inputs:
 runs:
   using: 'node12'
   main: 'dist/index.js'
+outputs:
+  work_dir:
+    description: The actual path to server working directory.

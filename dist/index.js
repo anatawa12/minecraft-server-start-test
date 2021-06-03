@@ -135,6 +135,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const params = yield parameters_1.parseParameters();
+            core.setOutput('work_dir', params.workDir);
             // prepare the environment
             const serverName = yield prepareEnvironment(params);
             // now, it's time to start server!
@@ -199,6 +200,7 @@ const fs = __importStar(__webpack_require__(5630));
 const parse_duration_1 = __importDefault(__webpack_require__(3805));
 const exec_1 = __webpack_require__(1514);
 const util_1 = __webpack_require__(4024);
+const path_1 = __webpack_require__(5622);
 function parseProvider(server_type, version) {
     switch (server_type.toLowerCase()) {
         case 'forge':
@@ -252,7 +254,7 @@ function parseWorkDir(work_dir) {
         if (work_dir === '')
             return (yield tmp_promise_1.dir()).path;
         else
-            return work_dir;
+            return path_1.resolve(work_dir);
     });
 }
 function parseParameters() {

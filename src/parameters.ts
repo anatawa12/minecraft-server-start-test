@@ -5,6 +5,7 @@ import * as fs from 'fs-extra'
 import {default as parseDuration} from 'parse-duration'
 import {exec} from '@actions/exec'
 import {pipeAndWaitThenClose} from './util'
+import {resolve as resolvePath} from 'path'
 
 export interface ActionParameters {
   /**
@@ -85,7 +86,7 @@ function parseSleepTime(sleep_time: string): string {
 
 async function parseWorkDir(work_dir: string): Promise<string> {
   if (work_dir === '') return (await tempDir()).path
-  else return work_dir
+  else return resolvePath(work_dir)
 }
 
 export async function parseParameters(): Promise<ActionParameters> {

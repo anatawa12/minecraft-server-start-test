@@ -130,6 +130,8 @@ async function run(): Promise<void> {
   try {
     const params = await parseParameters()
 
+    core.setOutput('work_dir', params.workDir)
+
     // prepare the environment
     const serverName = await prepareEnvironment(params)
 
