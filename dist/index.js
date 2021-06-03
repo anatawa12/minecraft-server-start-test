@@ -215,7 +215,7 @@ function parseProvider(server_type, version) {
                 yield exec_1.exec('java', ['-jar', installerJarPath, '--installServer'], {
                     cwd: work,
                 });
-                yield fs.remove(installerJarPath);
+                yield fs.unlink(installerJarPath);
                 return jarName;
             });
         default:

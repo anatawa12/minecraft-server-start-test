@@ -52,7 +52,7 @@ export function parseProvider(
         await exec('java', ['-jar', installerJarPath, '--installServer'], {
           cwd: work,
         })
-        await fs.remove(installerJarPath)
+        await fs.unlink(installerJarPath)
         return jarName
       }
     default:
