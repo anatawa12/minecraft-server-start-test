@@ -28,6 +28,9 @@ export interface ActionParameters {
   modsDir: string
   configFile: string
   configDir: string
+
+  // undocumented
+  minecraftServerAutoCloserPath: string
 }
 
 export function parseProvider(
@@ -118,6 +121,9 @@ export async function parseParameters(): Promise<ActionParameters> {
   const mod_jar = core.getInput('mod_jar')
   const config_dir = core.getInput('config_dir')
   const config_file = core.getInput('config_file')
+  const minecraft_server_auto_closer_path = core.getInput(
+    'minecraft_server_auto_closer_path',
+  )
 
   return {
     serverProvider: parseProvider(server_type, version),
@@ -132,6 +138,7 @@ export async function parseParameters(): Promise<ActionParameters> {
     modsDir: mods_dir,
     configFile: config_file,
     configDir: config_dir,
+    minecraftServerAutoCloserPath: minecraft_server_auto_closer_path,
   }
 }
 

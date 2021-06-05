@@ -27,6 +27,7 @@ async function copyDataDir(
 
 async function prepareMinecraftServerAutoCloser(
   workDir: string,
+  minecraftServerAutoCloserPath: string,
   configData: string,
 ): Promise<void> {
   await fs.ensureDir(path.join(workDir, 'mods'))
@@ -35,27 +36,33 @@ async function prepareMinecraftServerAutoCloser(
     'mods',
     '.com.anatawa12.minecraft-server-start-test.minecraft-server-auto-closer.jar',
   )
-  const octokit = new GitHub()
-  const release = await octokit.rest.repos.getLatestRelease({
-    owner: 'anatawa12',
-    repo: 'minecraft-server-auto-closer',
-  })
-  const asset = release.data.assets.find(
-    x => x.name.endsWith('.jar') && !x.name.match(/-(sources|dev)/),
-  )
-  if (!asset)
-    throw new Error(
-      `no asset of minecraft-server-auto-closer of ${release.data.name}`,
+  if (minecraftServerAutoCloserPath === '') {
+    const octokit = new GitHub()
+    const release = await octokit.rest.repos.getLatestRelease({
+      owner: 'anatawa12',
+      repo: 'minecraft-server-auto-closer',
+    })
+    const asset = release.data.assets.find(
+      x => x.name.endsWith('.jar') && !x.name.match(/-(sources|dev)/),
     )
+    if (!asset)
+      throw new Error(
+        `no asset of minecraft-server-auto-closer of ${release.data.name}`,
+      )
 
-  const res = await fetch(asset.browser_download_url)
-  if (!res.ok)
-    throw new Error(
-      `downloading minecraft-server-auto-closer: invalid response: ${res.status} ${res.statusText} ` +
-        `downloading ${asset.browser_download_url}`,
-    )
+    const res = await fetch(asset.browser_download_url)
+    if (!res.ok)
+      throw new Error(
+        `downloading minecraft-server-auto-closer: invalid response: ${res.status} ${res.statusText} ` +
+          `downloading ${asset.browser_download_url}`,
+      )
 
-  await pipeAndWaitThenClose(res.body, fs.createWriteStream(jarPath))
+    await pipeAndWaitThenClose(res.body, fs.createWriteStream(jarPath))
+  } else {
+    const sourceFile = fs.createReadStream(minecraftServerAutoCloserPath)
+    await pipeAndWaitThenClose(sourceFile, fs.createWriteStream(jarPath))
+    sourceFile.close()
+  }
 
   await fs.ensureDir(path.join(workDir, 'config'))
   await fs.writeFile(
@@ -97,7 +104,11 @@ async function prepareEnvironment(params: ActionParameters): Promise<string> {
     )
   }
 
-  await prepareMinecraftServerAutoCloser(params.workDir, params.sleepTimeConfig)
+  await prepareMinecraftServerAutoCloser(
+    params.workDir,
+    params.minecraftServerAutoCloserPath,
+    params.sleepTimeConfig,
+  )
 
   await signEula(params.workDir)
 
