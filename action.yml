@@ -1,6 +1,6 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'minecraft-server-start-test'
+description: 'An action to check a mod can be launched with server. currently supports server.'
+author: 'anatawa12'
 inputs:
   server_type:
     required: false
