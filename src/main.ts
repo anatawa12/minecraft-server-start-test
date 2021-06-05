@@ -43,6 +43,7 @@ async function prepareMinecraftServerAutoCloser(
       owner: 'anatawa12',
       repo: 'minecraft-server-auto-closer',
     })
+    core.info(`using minecraft server auto closer: ${release.data.name}`)
     let pattern: RegExp
     if (Number(minecraftVersion.split('.')[1]) <= 12) {
       pattern = /^minecraft-server-auto-closer-[0-9.]+\.jar$/

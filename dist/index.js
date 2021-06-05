@@ -62,7 +62,7 @@ function copyDataDir(output, [dir, dirMessage], [file, fileMessage]) {
         }
     });
 }
-function prepareMinecraftServerAutoCloser(workDir, minecraftServerAutoCloserPath, configData) {
+function prepareMinecraftServerAutoCloser(workDir, minecraftServerAutoCloserPath, configData, minecraftVersion) {
     return __awaiter(this, void 0, void 0, function* () {
         yield fs.ensureDir(path_1.default.join(workDir, 'mods'));
         const jarPath = path_1.default.join(workDir, 'mods', '.com.anatawa12.minecraft-server-start-test.minecraft-server-auto-closer.jar');
@@ -72,7 +72,15 @@ function prepareMinecraftServerAutoCloser(workDir, minecraftServerAutoCloserPath
                 owner: 'anatawa12',
                 repo: 'minecraft-server-auto-closer',
             });
-            const asset = release.data.assets.find(x => x.name.endsWith('.jar') && !x.name.match(/-(sources|dev)/));
+            core.info(`using minecraft server auto closer: ${release.data.name}`);
+            let pattern;
+            if (Number(minecraftVersion.split('.')[1]) <= 12) {
+                pattern = /^minecraft-server-auto-closer-[0-9.]+\.jar$/;
+            }
+            else {
+                pattern = /^minecraft-server-auto-closer-post1\.13-[0-9.]+\.jar$/;
+            }
+            const asset = release.data.assets.find(x => pattern.test(x.name));
             if (!asset)
                 throw new Error(`no asset of minecraft-server-auto-closer of ${release.data.name}`);
             const res = yield node_fetch_1.default(asset.browser_download_url);
@@ -113,7 +121,7 @@ function prepareEnvironment(params) {
             core.warning("no world data specified! It's recommended to " +
                 'prepare a simple vanilla world data to prevent world generation!');
         }
-        yield prepareMinecraftServerAutoCloser(params.workDir, params.minecraftServerAutoCloserPath, params.sleepTimeConfig);
+        yield prepareMinecraftServerAutoCloser(params.workDir, params.minecraftServerAutoCloserPath, params.sleepTimeConfig, versionInfo.minecraftVersion);
         yield signEula(params.workDir);
         return versionInfo.jarPath;
     });
