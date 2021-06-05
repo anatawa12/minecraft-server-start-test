@@ -12,12 +12,14 @@ export interface RuntimeVersionInfo {
   minecraftVersion: string
 }
 
+export interface ServiceProvider {
+  cacheKey: string
+  build(dir: string): Promise<void>
+  getRuntimeInfo(dir: string): Promise<RuntimeVersionInfo>
+}
+
 export interface ActionParameters {
-  /**
-   * @param dir the directory for server
-   * @returns the path or name of jar file to start the server
-   */
-  serverProvider(dir: string): Promise<RuntimeVersionInfo>
+  serverProvider: ServiceProvider
   // the format can be used in config file.
   sleepTimeConfig: string
   workDir: string
@@ -36,10 +38,10 @@ export interface ActionParameters {
 export function parseProvider(
   server_type: string,
   version: string,
-): (work: string) => Promise<RuntimeVersionInfo> {
+): ServiceProvider {
   switch (server_type.toLowerCase()) {
-    case 'forge':
-      return async work => {
+    case 'forge': {
+      async function build(work: string): Promise<void> {
         const jarName = `forge-${version}-installer.jar`
         // download installer
         const res = await fetch(
@@ -64,7 +66,8 @@ export function parseProvider(
         })
         core.endGroup()
         await fs.unlink(installerJarPath)
-
+      }
+      async function getRuntimeInfo(work: string): Promise<RuntimeVersionInfo> {
         const forgeRuns = (await fs.readdir(work)).filter(
           x => x.startsWith('forge') && x.endsWith('.jar'),
         )
@@ -79,6 +82,13 @@ export function parseProvider(
           minecraftVersion: version.substr(0, version.indexOf('-')),
         }
       }
+
+      return {
+        cacheKey: `forge-${version}`,
+        build,
+        getRuntimeInfo,
+      }
+    }
     default:
       throw new Error(`unsupported server_type: ${server_type}`)
   }

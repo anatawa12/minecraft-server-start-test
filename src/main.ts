@@ -80,7 +80,8 @@ async function signEula(workDir: string): Promise<void> {
  */
 async function prepareEnvironment(params: ActionParameters): Promise<string> {
   core.info('downloading and preparing server directory...')
-  const versionInfo = await params.serverProvider(params.workDir)
+  await params.serverProvider.build(params.workDir)
+  const versionInfo = await params.serverProvider.getRuntimeInfo(params.workDir)
 
   await copyDataDir(
     path.join(params.workDir, 'mods'),
