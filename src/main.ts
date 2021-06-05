@@ -6,6 +6,7 @@ import fetch from 'node-fetch'
 import {GitHub} from '@actions/github/lib/utils'
 import {exec} from '@actions/exec'
 import {pipeAndWaitThenClose} from './util'
+import {EOL} from 'os'
 
 async function copyDataDir(
   output: string,
@@ -63,6 +64,10 @@ async function prepareMinecraftServerAutoCloser(
   )
 }
 
+async function signEula(workDir: string): Promise<void> {
+  await fs.writeFile(path.join(workDir, 'eula.txt'), `eula=true${EOL}`)
+}
+
 /**
  * @returns The path or name of jar file to start sever
  */
@@ -93,6 +98,8 @@ async function prepareEnvironment(params: ActionParameters): Promise<string> {
   }
 
   await prepareMinecraftServerAutoCloser(params.workDir, params.sleepTimeConfig)
+
+  await signEula(params.workDir)
 
   return serverName
 }
