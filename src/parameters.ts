@@ -14,6 +14,7 @@ export interface RuntimeVersionInfo {
 
 export interface ServiceProvider {
   cacheKey: string
+  version: string
   build(dir: string): Promise<void>
   getRuntimeInfo(dir: string): Promise<RuntimeVersionInfo>
 }
@@ -84,7 +85,8 @@ export function parseProvider(
       }
 
       return {
-        cacheKey: `forge-${version}`,
+        cacheKey: `forge`,
+        version,
         build,
         getRuntimeInfo,
       }

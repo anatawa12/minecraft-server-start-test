@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
-import {ActionParameters, parseParameters} from './parameters'
+import * as tc from '@actions/tool-cache'
+import {ActionParameters, parseParameters, ServiceProvider} from './parameters'
 import * as fs from 'fs-extra'
 import path from 'path'
 import fetch from 'node-fetch'
@@ -7,6 +8,34 @@ import {GitHub} from '@actions/github/lib/utils'
 import {exec} from '@actions/exec'
 import {pipeAndWaitThenClose} from './util'
 import {EOL} from 'os'
+
+const toolCachePrefix = 'minecraft-server-start-test-'
+
+async function installServer(
+  serverProvider: ServiceProvider,
+  output: string,
+): Promise<void> {
+  // platform independence
+  const found = tc.find(
+    toolCachePrefix + serverProvider.cacheKey,
+    serverProvider.version,
+    '',
+  )
+  if (found === '') {
+    core.debug('cache missed. run building')
+    await serverProvider.build(output)
+    core.debug('creating cache')
+    await tc.cacheDir(
+      output,
+      toolCachePrefix + serverProvider.cacheKey,
+      serverProvider.version,
+      '',
+    )
+  } else {
+    core.debug('cache found. just copy contents')
+    await fs.copy(found, output)
+  }
+}
 
 async function copyDataDir(
   output: string,
@@ -80,7 +109,7 @@ async function signEula(workDir: string): Promise<void> {
  */
 async function prepareEnvironment(params: ActionParameters): Promise<string> {
   core.info('downloading and preparing server directory...')
-  await params.serverProvider.build(params.workDir)
+  await installServer(params.serverProvider, params.workDir)
   const versionInfo = await params.serverProvider.getRuntimeInfo(params.workDir)
 
   await copyDataDir(
