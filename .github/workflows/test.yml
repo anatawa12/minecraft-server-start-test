@@ -17,6 +17,11 @@ jobs:
           npm run all
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        version:
+          # - 1.12.2-14.23.5.2855 wait for minecraft-server-auto-closer
+          - 1.7.10-10.13.4.1558-1.7.10
     steps:
       - uses: actions/checkout@v2
       - uses: ./
