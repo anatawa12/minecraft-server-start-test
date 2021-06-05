@@ -29,6 +29,7 @@ async function prepareMinecraftServerAutoCloser(
   workDir: string,
   minecraftServerAutoCloserPath: string,
   configData: string,
+  minecraftVersion: string,
 ): Promise<void> {
   await fs.ensureDir(path.join(workDir, 'mods'))
   const jarPath = path.join(
@@ -42,9 +43,13 @@ async function prepareMinecraftServerAutoCloser(
       owner: 'anatawa12',
       repo: 'minecraft-server-auto-closer',
     })
-    const asset = release.data.assets.find(
-      x => x.name.endsWith('.jar') && !x.name.match(/-(sources|dev)/),
-    )
+    let pattern: RegExp
+    if (Number(minecraftVersion.split('.')[1]) <= 12) {
+      pattern = /^minecraft-server-auto-closer-[0-9.]+\.jar$/
+    } else {
+      pattern = /^minecraft-server-auto-closer-post1\.13-[0-9.]+\.jar$/
+    }
+    const asset = release.data.assets.find(x => pattern.test(x.name))
     if (!asset)
       throw new Error(
         `no asset of minecraft-server-auto-closer of ${release.data.name}`,
@@ -109,6 +114,7 @@ async function prepareEnvironment(params: ActionParameters): Promise<string> {
     params.workDir,
     params.minecraftServerAutoCloserPath,
     params.sleepTimeConfig,
+    versionInfo.minecraftVersion,
   )
 
   await signEula(params.workDir)
