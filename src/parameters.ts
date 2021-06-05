@@ -6,6 +6,7 @@ import {default as parseDuration} from 'parse-duration'
 import {exec} from '@actions/exec'
 import {pipeAndWaitThenClose} from './util'
 import {resolve as resolvePath} from 'path'
+import {startGroup} from '@actions/core'
 
 export interface RuntimeVersionInfo {
   jarPath: string
@@ -58,9 +59,11 @@ export function parseProvider(
         )
 
         // install jar
+        core.startGroup('minecraft server installation')
         await exec('java', ['-jar', installerJarPath, '--installServer'], {
           cwd: work,
         })
+        core.endGroup()
         await fs.unlink(installerJarPath)
 
         const forgeRuns = (await fs.readdir(work)).filter(
