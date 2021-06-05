@@ -7,12 +7,17 @@ import {exec} from '@actions/exec'
 import {pipeAndWaitThenClose} from './util'
 import {resolve as resolvePath} from 'path'
 
+export interface RuntimeVersionInfo {
+  jarPath: string
+  minecraftVersion: string
+}
+
 export interface ActionParameters {
   /**
    * @param dir the directory for server
    * @returns the path or name of jar file to start the server
    */
-  serverProvider(dir: string): Promise<string>
+  serverProvider(dir: string): Promise<RuntimeVersionInfo>
   // the format can be used in config file.
   sleepTimeConfig: string
   workDir: string
@@ -28,7 +33,7 @@ export interface ActionParameters {
 export function parseProvider(
   server_type: string,
   version: string,
-): (work: string) => Promise<string> {
+): (work: string) => Promise<RuntimeVersionInfo> {
   switch (server_type.toLowerCase()) {
     case 'forge':
       return async work => {
@@ -64,7 +69,10 @@ export function parseProvider(
           throw new Error('multiple server forge jar found! please report me!')
         }
 
-        return forgeRuns[0]
+        return {
+          jarPath: forgeRuns[0],
+          minecraftVersion: version.substr(0, version.indexOf('-')),
+        }
       }
     default:
       throw new Error(`unsupported server_type: ${server_type}`)

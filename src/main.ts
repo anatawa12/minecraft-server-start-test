@@ -73,7 +73,7 @@ async function signEula(workDir: string): Promise<void> {
  */
 async function prepareEnvironment(params: ActionParameters): Promise<string> {
   core.info('downloading and preparing server directory...')
-  const serverName = await params.serverProvider(params.workDir)
+  const versionInfo = await params.serverProvider(params.workDir)
 
   await copyDataDir(
     path.join(params.workDir, 'mods'),
@@ -101,7 +101,7 @@ async function prepareEnvironment(params: ActionParameters): Promise<string> {
 
   await signEula(params.workDir)
 
-  return serverName
+  return versionInfo.jarPath
 }
 
 async function timeoutError(
