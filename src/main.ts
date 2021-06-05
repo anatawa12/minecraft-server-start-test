@@ -127,8 +127,22 @@ async function startServer(workDir: string, serverName: string): Promise<void> {
     cwd: workDir,
   })
 
+  let crashed: boolean
+  try {
+    crashed =
+      (await fs.readdir(path.join(workDir, 'crash-reports'))).length !== 0
+  } catch (e) {
+    if (e && e.code && e.code === 'ENOENT') {
+      // notfound: no crash
+      crashed = false
+    } else {
+      // unknown error, rethrow
+      throw e
+    }
+  }
+
   // check crash-reports to detect crash
-  if ((await fs.readdir(path.join(workDir, 'crash-reports'))).length !== 0) {
+  if (crashed) {
     throw new Error('crash report found! it looks starting server failed!')
   }
 }
