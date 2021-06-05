@@ -47,6 +47,7 @@ const node_fetch_1 = __importDefault(__webpack_require__(467));
 const utils_1 = __webpack_require__(3030);
 const exec_1 = __webpack_require__(1514);
 const util_1 = __webpack_require__(4024);
+const os_1 = __webpack_require__(2087);
 function copyDataDir(output, [dir, dirMessage], [file, fileMessage]) {
     return __awaiter(this, void 0, void 0, function* () {
         if (dir && dir !== '') {
@@ -61,25 +62,37 @@ function copyDataDir(output, [dir, dirMessage], [file, fileMessage]) {
         }
     });
 }
-function prepareMinecraftServerAutoCloser(workDir, configData) {
+function prepareMinecraftServerAutoCloser(workDir, minecraftServerAutoCloserPath, configData) {
     return __awaiter(this, void 0, void 0, function* () {
         yield fs.ensureDir(path_1.default.join(workDir, 'mods'));
         const jarPath = path_1.default.join(workDir, 'mods', '.com.anatawa12.minecraft-server-start-test.minecraft-server-auto-closer.jar');
-        const octokit = new utils_1.GitHub();
-        const release = yield octokit.rest.repos.getLatestRelease({
-            owner: 'anatawa12',
-            repo: 'minecraft-server-auto-closer',
-        });
-        const asset = release.data.assets.find(x => x.name.endsWith('.jar') && !x.name.match(/-(sources|dev)/));
-        if (!asset)
-            throw new Error(`no asset of minecraft-server-auto-closer of ${release.data.name}`);
-        const res = yield node_fetch_1.default(asset.browser_download_url);
-        if (!res.ok)
-            throw new Error(`downloading minecraft-server-auto-closer: invalid response: ${res.status} ${res.statusText} ` +
-                `downloading ${asset.browser_download_url}`);
-        yield util_1.pipeAndWaitThenClose(res.body, fs.createWriteStream(jarPath));
+        if (minecraftServerAutoCloserPath === '') {
+            const octokit = new utils_1.GitHub();
+            const release = yield octokit.rest.repos.getLatestRelease({
+                owner: 'anatawa12',
+                repo: 'minecraft-server-auto-closer',
+            });
+            const asset = release.data.assets.find(x => x.name.endsWith('.jar') && !x.name.match(/-(sources|dev)/));
+            if (!asset)
+                throw new Error(`no asset of minecraft-server-auto-closer of ${release.data.name}`);
+            const res = yield node_fetch_1.default(asset.browser_download_url);
+            if (!res.ok)
+                throw new Error(`downloading minecraft-server-auto-closer: invalid response: ${res.status} ${res.statusText} ` +
+                    `downloading ${asset.browser_download_url}`);
+            yield util_1.pipeAndWaitThenClose(res.body, fs.createWriteStream(jarPath));
+        }
+        else {
+            const sourceFile = fs.createReadStream(minecraftServerAutoCloserPath);
+            yield util_1.pipeAndWaitThenClose(sourceFile, fs.createWriteStream(jarPath));
+            sourceFile.close();
+        }
         yield fs.ensureDir(path_1.default.join(workDir, 'config'));
         yield fs.writeFile(path_1.default.join(workDir, 'config', 'minecraft-server-auto-closer.txt'), configData);
+    });
+}
+function signEula(workDir) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield fs.writeFile(path_1.default.join(workDir, 'eula.txt'), `eula=true${os_1.EOL}`);
     });
 }
 /**
@@ -88,7 +101,7 @@ function prepareMinecraftServerAutoCloser(workDir, configData) {
 function prepareEnvironment(params) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('downloading and preparing server directory...');
-        const serverName = yield params.serverProvider(params.workDir);
+        const versionInfo = yield params.serverProvider(params.workDir);
         yield copyDataDir(path_1.default.join(params.workDir, 'mods'), [params.modsDir, 'mods directory'], [params.modJar, 'mod jar']);
         yield copyDataDir(path_1.default.join(params.workDir, 'config'), [params.configDir, 'config directory'], [params.configFile, 'config file']);
         if (params.worldData !== '') {
@@ -99,8 +112,9 @@ function prepareEnvironment(params) {
             core.warning("no world data specified! It's recommended to " +
                 'prepare a simple vanilla world data to prevent world generation!');
         }
-        yield prepareMinecraftServerAutoCloser(params.workDir, params.sleepTimeConfig);
-        return serverName;
+        yield prepareMinecraftServerAutoCloser(params.workDir, params.minecraftServerAutoCloserPath, params.sleepTimeConfig);
+        yield signEula(params.workDir);
+        return versionInfo.jarPath;
     });
 }
 function timeoutError(timeout, message) {
@@ -125,8 +139,23 @@ function startServer(workDir, serverName) {
         yield exec_1.exec('java', ['-jar', serverName], {
             cwd: workDir,
         });
+        let crashed;
+        try {
+            crashed =
+                (yield fs.readdir(path_1.default.join(workDir, 'crash-reports'))).length !== 0;
+        }
+        catch (e) {
+            if (e && e.code && e.code === 'ENOENT') {
+                // notfound: no crash
+                crashed = false;
+            }
+            else {
+                // unknown error, rethrow
+                throw e;
+            }
+        }
         // check crash-reports to detect crash
-        if ((yield fs.readdir(path_1.default.join(workDir, 'crash-reports'))).length !== 0) {
+        if (crashed) {
             throw new Error('crash report found! it looks starting server failed!');
         }
     });
@@ -226,7 +255,10 @@ function parseProvider(server_type, version) {
                 else if (forgeRuns.length !== 1) {
                     throw new Error('multiple server forge jar found! please report me!');
                 }
-                return forgeRuns[0];
+                return {
+                    jarPath: forgeRuns[0],
+                    minecraftVersion: version.substr(0, version.indexOf('-')),
+                };
             });
         default:
             throw new Error(`unsupported server_type: ${server_type}`);
@@ -277,6 +309,7 @@ function parseParameters() {
         const mod_jar = core.getInput('mod_jar');
         const config_dir = core.getInput('config_dir');
         const config_file = core.getInput('config_file');
+        const minecraft_server_auto_closer_path = core.getInput('minecraft_server_auto_closer_path');
         return {
             serverProvider: parseProvider(server_type, version),
             workDir: yield parseWorkDir(work_dir),
@@ -289,6 +322,7 @@ function parseParameters() {
             modsDir: mods_dir,
             configFile: config_file,
             configDir: config_dir,
+            minecraftServerAutoCloserPath: minecraft_server_auto_closer_path
         };
     });
 }
