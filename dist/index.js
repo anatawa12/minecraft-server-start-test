@@ -244,9 +244,11 @@ function parseProvider(server_type, version) {
                 const installerJarPath = (yield tmp_promise_1.file({ postfix: jarName })).path;
                 yield util_1.pipeAndWaitThenClose(res.body, fs.createWriteStream(installerJarPath));
                 // install jar
+                core.startGroup('minecraft server installation');
                 yield exec_1.exec('java', ['-jar', installerJarPath, '--installServer'], {
                     cwd: work,
                 });
+                core.endGroup();
                 yield fs.unlink(installerJarPath);
                 const forgeRuns = (yield fs.readdir(work)).filter(x => x.startsWith('forge') && x.endsWith('.jar'));
                 if (forgeRuns.length === 0) {
@@ -322,7 +324,7 @@ function parseParameters() {
             modsDir: mods_dir,
             configFile: config_file,
             configDir: config_dir,
-            minecraftServerAutoCloserPath: minecraft_server_auto_closer_path
+            minecraftServerAutoCloserPath: minecraft_server_auto_closer_path,
         };
     });
 }

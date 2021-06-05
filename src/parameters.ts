@@ -6,7 +6,6 @@ import {default as parseDuration} from 'parse-duration'
 import {exec} from '@actions/exec'
 import {pipeAndWaitThenClose} from './util'
 import {resolve as resolvePath} from 'path'
-import {startGroup} from '@actions/core'
 
 export interface RuntimeVersionInfo {
   jarPath: string
