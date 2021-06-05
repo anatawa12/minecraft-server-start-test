@@ -20,7 +20,8 @@ jobs:
     strategy:
       matrix: 
         version:
-          # - 1.12.2-14.23.5.2855 wait for minecraft-server-auto-closer
+          - 1.16.5-36.1.0
+          - 1.12.2-14.23.5.2855
           - 1.7.10-10.13.4.1614-1.7.10
     steps:
       - uses: actions/checkout@v2
