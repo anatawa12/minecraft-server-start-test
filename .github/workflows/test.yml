@@ -16,13 +16,16 @@ jobs:
       - run: |
           npm run all
   test: # make sure the action works on a clean machine without building
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.on }}
     strategy:
       matrix: 
         version:
           - 1.16.5-36.1.0
           - 1.12.2-14.23.5.2855
           - 1.7.10-10.13.4.1614-1.7.10
+        on:
+          - ubuntu-latest
+          - windows-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
