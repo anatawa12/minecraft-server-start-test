@@ -151,7 +151,8 @@ async function startServer(workDir: string, serverName: string): Promise<void> {
     crashed =
       (await fs.readdir(path.join(workDir, 'crash-reports'))).length !== 0
   } catch (e) {
-    if (e && e.code && e.code === 'ENOENT') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (e && (e as any).code && (e as any).code === 'ENOENT') {
       // notfound: no crash
       crashed = false
     } else {
@@ -185,7 +186,8 @@ async function run(): Promise<void> {
       startServer(params.workDir, serverName),
     ])
   } catch (error) {
-    core.setFailed(error.message)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    core.setFailed((error as any).message)
   }
 }
 
