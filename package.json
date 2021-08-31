@@ -39,7 +39,7 @@
     "@types/node": "^15.12.4",
     "@types/node-fetch": "^2.5.10",
     "@types/tmp": "^0.2.0",
-    "@typescript-eslint/parser": "^4.26.0",
+    "@typescript-eslint/parser": "^4.30.0",
     "@vercel/ncc": "^0.25.1",
     "eslint": "^7.29.0",
     "eslint-plugin-github": "^4.1.3",
