@@ -33,7 +33,7 @@ jobs:
         env:
           VERSION: ${{ github.event.inputs.version }}
         shell: bash
-      - uses: anatawa12/something-releaser
+      - uses: anatawa12/something-releaser@v2
       - uses: actions/setup-node@v2
         with:
           node-version: '12'
