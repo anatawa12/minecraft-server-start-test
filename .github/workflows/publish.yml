@@ -58,15 +58,14 @@ jobs:
             .eslintrc.json \
             .gitattributes \
             .github \
-            .gitignore \
             .idea \
             .prettierignore \
             .prettierrc.json \
             CODEOWNERS \
             __tests__ \
             action.yml \
-            dist \
             jest.config.js \
+            lib \
             node_modules \
             package-lock.json \
             package.json \
