@@ -1,0 +1,89 @@
+name: Publish
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: name of version. requires matches `v[0-9]+\.[0-9]+`
+        required: true
+jobs:
+  release:
+    name: Do Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: fix fetch
+        run: |
+          # fetch the branch to be published
+          git remote set-branches --add origin releases
+          # fetch tags to verify the tag is not exists
+          git fetch origin --tags
+      - name: Verify Inputs
+        id: verify
+        run: |
+          set -eu
+          if ! [[ "$VERSION" =~ ^v([0-9]+)\.([0-9]+)$ ]]; then 
+            echo "invalid version name: $VERSION" >&2
+            exit -1
+          fi
+          if git tag | grep "$VERSION" >/dev/null; then 
+            echo "version name duplicated" >&2
+            exit -1
+          fi
+          echo "::set-output name=major_version::v${BASH_REMATCH[1]}"
+        env:
+          VERSION: ${{ github.event.inputs.version }}
+        shell: bash
+      - uses: anatawa12/something-releaser
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+          cache: 'npm'
+
+      # building
+      - run: npm ci
+      - run: npm run all
+
+      - name: Publish
+        run: |
+          set -eu
+          # set user name
+          set-git-user anatawa12-bot
+          HASH="$(git rev-parse HEAD)"
+          # checkout releases at origin/releases witout chanigng local tree
+          git branch releases origin/releases
+          git symbolic-ref HEAD refs/heads/releases
+          # remove unused files
+          rm -rf \
+            .eslintignore \
+            .eslintrc.json \
+            .gitattributes \
+            .github \
+            .idea \
+            .prettierignore \
+            .prettierrc.json \
+            CODEOWNERS \
+            __tests__ \
+            action.yml \
+            jest.config.js \
+            lib \
+            node_modules \
+            package-lock.json \
+            package.json \
+            src \
+            tsconfig.json \
+
+          # edit gitignore
+          sed -n '/#### PUBLISH DELETE MARKER ####/q;p' -i .gitignore
+
+          # add modified files and commit
+          git add .
+          git reset --soft $(git commit-tree -p HEAD -p $HASH -m "$VERSION at $HASH" $(git write-tree))
+          # create tag & push
+          git tag -f "$VERSION"
+          git tag -f "$MAJOR_VERSION"
+          git push
+          git push --tags -f
+        shell: bash
+        env:
+          VERSION: ${{ github.event.inputs.version }}
+          MAJOR_VERSION: ${{ steps.verify.outputs.major_version }}
