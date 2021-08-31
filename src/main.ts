@@ -1,12 +1,12 @@
 import * as core from '@actions/core'
-import {ActionParameters, parseParameters} from './parameters'
 import * as fs from 'fs-extra'
-import path from 'path'
-import fetch from 'node-fetch'
+import {ActionParameters, parseParameters} from './parameters'
+import {EOL} from 'os'
 import {GitHub} from '@actions/github/lib/utils'
 import {exec} from '@actions/exec'
+import fetch from 'node-fetch'
+import path from 'path'
 import {pipeAndWaitThenClose} from './util'
-import {EOL} from 'os'
 
 async function copyDataDir(
   output: string,

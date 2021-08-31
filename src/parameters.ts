@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
-import fetch from 'node-fetch'
-import {file as tempFile, dir as tempDir} from 'tmp-promise'
 import * as fs from 'fs-extra'
-import {default as parseDuration} from 'parse-duration'
+import {dir as tempDir, file as tempFile} from 'tmp-promise'
 import {exec} from '@actions/exec'
+import fetch from 'node-fetch'
+import {default as parseDuration} from 'parse-duration'
 import {pipeAndWaitThenClose} from './util'
 import {resolve as resolvePath} from 'path'
 
