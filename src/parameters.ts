@@ -55,7 +55,7 @@ export function parseProvider(
           )
         const installerJarPath = (await tempFile({postfix: jarName})).path
         await pipeAndWaitThenClose(
-          res.body,
+          res.body!,
           fs.createWriteStream(installerJarPath),
         )
 

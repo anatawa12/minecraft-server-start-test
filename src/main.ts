@@ -63,7 +63,7 @@ async function prepareMinecraftServerAutoCloser(
           `downloading ${asset.browser_download_url}`,
       )
 
-    await pipeAndWaitThenClose(res.body, fs.createWriteStream(jarPath))
+    await pipeAndWaitThenClose(res.body!, fs.createWriteStream(jarPath))
   } else {
     const sourceFile = fs.createReadStream(minecraftServerAutoCloserPath)
     await pipeAndWaitThenClose(sourceFile, fs.createWriteStream(jarPath))
