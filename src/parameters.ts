@@ -55,6 +55,7 @@ export function parseProvider(
           )
         const installerJarPath = (await tempFile({postfix: jarName})).path
         await pipeAndWaitThenClose(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           res.body!,
           fs.createWriteStream(installerJarPath),
         )
