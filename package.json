@@ -34,7 +34,7 @@
     "tmp-promise": "^3.0.2"
   },
   "devDependencies": {
-    "@types/fs-extra": "^9.0.12",
+    "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.1",
     "@types/node": "^12.20.21",
     "@types/node-fetch": "^2.5.12",
