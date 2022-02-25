@@ -1,6 +1,6 @@
 # minecraft-server-start-test
 [![ci status](https://github.com/anatawa12/minecraft-server-start-test/workflows/build-test/badge.svg)](https://github.com/anatawa12/minecraft-server-start-test/actions)
-[![a12 maintenance: Slowly](https://anatawa12.com/short.php?q=a12-slowly-svg)](https://anatawa12.com/short.php?q=a12-slowly-doc)
+[![a12 maintenance: Slowly](https://api.anatawa12.com/short/a12-slowly-svg)](https://api.anatawa12.com/short/a12-slowly-doc)
 [![latest release](https://img.shields.io/github/v/release/anatawa12/minecraft-server-start-test)](https://github.com/anatawa12/minecraft-server-start-test/releases/latest)
 
 An action to check a mod can be launched with server. currently supports server.
