@@ -41,6 +41,7 @@ jobs:
           name: built
       - name: Configure Version
         id: configure_version
+        shell: bash
         env:
           VERSION: ${{ matrix.version }}
         run: |
