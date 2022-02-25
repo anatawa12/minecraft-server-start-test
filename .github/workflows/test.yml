@@ -28,9 +28,10 @@ jobs:
     strategy:
       matrix: 
         version:
-          - 1.16.5-36.2.29
-          - 1.12.2-14.23.5.2860
-          - 1.7.10-10.13.4.1614-1.7.10
+          - "17:1.16.5-36.2.29"
+          - "8:1.16.5-36.2.29"
+          - "8:1.12.2-14.23.5.2860"
+          - "8:1.7.10-10.13.4.1614-1.7.10"
         on:
           - ubuntu-latest
           - windows-latest
@@ -38,13 +39,26 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: built
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
+      - name: Configure Version
+        id: configure_version
+        env:
+          VERSION: ${{ matrix.version }}
+        run: |
+          MC_VERSION="${VERSION#*:}"
+          JAVA_VERSION="${VERSION%%:*}"
+          echo "::set-output name=mc_version::$MC_VERSION"
+          echo "::set-output name=java_version::$JAVA_VERSION"
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
         with:
-          java-version: 1.8
-      - uses: ./
+          distribution: 'temurin'
+          java-version: ${{ steps.configure_version.outputs.java_version }}
+
+      - uses: anatawa12/minecraft-server-start-test@v1
         with:
-          version: ${{ matrix.version }}
+          version: ${{ steps.configure_version.outputs.mc_version }}
+
   conclude:
     runs-on: ubuntu-latest
     if: ${{ always() }}
