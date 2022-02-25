@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import * as fs from 'fs-extra'
-import {ActionParameters, parseParameters} from './parameters'
+import {ActionParameters, LaunchConfig, parseParameters} from './parameters'
 import {EOL} from 'os'
 import {GitHub} from '@actions/github/lib/utils'
 import {exec} from '@actions/exec'
@@ -84,7 +84,9 @@ async function signEula(workDir: string): Promise<void> {
 /**
  * @returns The path or name of jar file to start sever
  */
-async function prepareEnvironment(params: ActionParameters): Promise<string> {
+async function prepareEnvironment(
+  params: ActionParameters,
+): Promise<LaunchConfig> {
   core.info('downloading and preparing server directory...')
   await params.serverProvider.build(params.workDir)
   const versionInfo = await params.serverProvider.getRuntimeInfo(params.workDir)
@@ -120,7 +122,7 @@ async function prepareEnvironment(params: ActionParameters): Promise<string> {
 
   await signEula(params.workDir)
 
-  return versionInfo.jarPath
+  return versionInfo.launch
 }
 
 async function timeoutError(
@@ -141,8 +143,11 @@ async function timeoutError(
   throw new Error(`logic failure: after awaiting never function`)
 }
 
-async function startServer(workDir: string, serverName: string): Promise<void> {
-  await exec('java', ['-jar', serverName], {
+async function startServer(
+  workDir: string,
+  launch: LaunchConfig,
+): Promise<void> {
+  await exec(launch.command, launch.args ?? [], {
     cwd: workDir,
   })
 

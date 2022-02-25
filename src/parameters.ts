@@ -7,8 +7,13 @@ import {default as parseDuration} from 'parse-duration'
 import {pipeAndWaitThenClose} from './util'
 import {resolve as resolvePath} from 'path'
 
+export interface LaunchConfig {
+  command: string
+  args?: string[]
+}
+
 export interface RuntimeVersionInfo {
-  jarPath: string
+  launch: LaunchConfig
   minecraftVersion: string
 }
 
@@ -67,7 +72,9 @@ export function parseProvider(
         core.endGroup()
         await fs.unlink(installerJarPath)
       }
-      async function getRuntimeInfo(work: string): Promise<RuntimeVersionInfo> {
+      const minecraftVersion = version.substr(0, version.indexOf('-'))
+      let getRuntimeInfo
+      getRuntimeInfo = async (work: string): Promise<RuntimeVersionInfo> => {
         const forgeRuns = (await fs.readdir(work)).filter(
           x => x.startsWith('forge') && x.endsWith('.jar'),
         )
@@ -78,8 +85,26 @@ export function parseProvider(
         }
 
         return {
-          jarPath: forgeRuns[0],
-          minecraftVersion: version.substr(0, version.indexOf('-')),
+          launch: {
+            command: 'java',
+            args: ['-jar', forgeRuns[0]],
+          },
+          minecraftVersion,
+        }
+      }
+      if (Number(minecraftVersion.split('.')[1]) >= 17) {
+        getRuntimeInfo = async () => {
+          if (process.platform === 'win32') {
+            return {
+              launch: {command: 'cmd', args: ['/C', 'run.bat']},
+              minecraftVersion,
+            }
+          } else {
+            return {
+              launch: {command: './run.sh'},
+              minecraftVersion,
+            }
+          }
         }
       }
 
