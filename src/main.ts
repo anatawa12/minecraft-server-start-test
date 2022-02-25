@@ -63,7 +63,8 @@ async function prepareMinecraftServerAutoCloser(
           `downloading ${asset.browser_download_url}`,
       )
 
-    await pipeAndWaitThenClose(res.body, fs.createWriteStream(jarPath))
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    await pipeAndWaitThenClose(res.body!, fs.createWriteStream(jarPath))
   } else {
     const sourceFile = fs.createReadStream(minecraftServerAutoCloserPath)
     await pipeAndWaitThenClose(sourceFile, fs.createWriteStream(jarPath))
