@@ -30,7 +30,7 @@
     "@actions/github": "^5.0.0",
     "fs-extra": "^10.0.0",
     "node-fetch": "^2.6.1",
-    "parse-duration": "^1.0.0",
+    "parse-duration": "^1.0.2",
     "tmp-promise": "^3.0.2"
   },
   "devDependencies": {
