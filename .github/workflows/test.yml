@@ -56,7 +56,7 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ steps.configure_version.outputs.java_version }}
 
-      - uses: anatawa12/minecraft-server-start-test@v1
+      - uses: ./
         with:
           version: ${{ steps.configure_version.outputs.mc_version }}
 
