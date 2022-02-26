@@ -22,6 +22,7 @@ jobs:
           path: |
             dist
             action.yml
+            pause.exe
   test: # make sure the action works on a clean machine without building
     runs-on: ${{ matrix.on }}
     needs: [build]
