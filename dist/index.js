@@ -310,6 +310,10 @@ function parseProvider(server_type, version) {
 }
 exports.parseProvider = parseProvider;
 function parseSleepTime(sleep_time) {
+    const matchForBefore = sleep_time.match(/^before\s+(\w+)/);
+    if (matchForBefore) {
+        return `before ${matchForBefore[0]}`;
+    }
     const timeRegex = /^(\d+)(s|t|second|seconds|tick|ticks)$/;
     const match = sleep_time.match(timeRegex);
     if (!match)
@@ -346,7 +350,7 @@ function parseParameters() {
         const server_type = core.getInput('server_type');
         const version = core.getInput('version');
         const work_dir = core.getInput('work_dir');
-        const sleep_time = core.getInput('sleep_time');
+        const stop_at = core.getInput('sleep_time') || core.getInput('stop_at');
         const timeout = core.getInput('timeout');
         const world_data = core.getInput('world_data');
         const mods_dir = core.getInput('mods_dir');
@@ -357,7 +361,7 @@ function parseParameters() {
         return {
             serverProvider: parseProvider(server_type, version),
             workDir: yield parseWorkDir(work_dir),
-            sleepTimeConfig: parseSleepTime(sleep_time),
+            sleepTimeConfig: parseSleepTime(stop_at),
             timeout: timeout === ''
                 ? null
                 : (_a = (0, parse_duration_1.default)(timeout)) !== null && _a !== void 0 ? _a : throwError(`invalid timeout: ${timeout}`),
