@@ -61,7 +61,7 @@ function copyDataDir(output, [dir, dirMessage], [file, fileMessage]) {
         }
     });
 }
-function prepareMinecraftServerAutoCloser(workDir, minecraftServerAutoCloserPath, configData, minecraftVersion) {
+function prepareMinecraftServerAutoCloser(workDir, minecraftServerAutoCloserPath, configData) {
     return __awaiter(this, void 0, void 0, function* () {
         yield fs.ensureDir(path_1.default.join(workDir, 'mods'));
         const jarPath = path_1.default.join(workDir, 'mods', '.com.anatawa12.minecraft-server-start-test.minecraft-server-auto-closer.jar');
@@ -72,13 +72,7 @@ function prepareMinecraftServerAutoCloser(workDir, minecraftServerAutoCloserPath
                 repo: 'minecraft-server-auto-closer',
             });
             core.info(`using minecraft server auto closer: ${release.data.name}`);
-            let pattern;
-            if (Number(minecraftVersion.split('.')[1]) <= 12) {
-                pattern = /^minecraft-server-auto-closer-[0-9.]+\.jar$/;
-            }
-            else {
-                pattern = /^minecraft-server-auto-closer-post1\.13-[0-9.]+\.jar$/;
-            }
+            const pattern = /^minecraft-server-auto-closer-[0-9.]+\.jar$/;
             const asset = release.data.assets.find(x => pattern.test(x.name));
             if (!asset)
                 throw new Error(`no asset of minecraft-server-auto-closer of ${release.data.name}`);
@@ -95,6 +89,28 @@ function prepareMinecraftServerAutoCloser(workDir, minecraftServerAutoCloserPath
         }
         yield fs.ensureDir(path_1.default.join(workDir, 'config'));
         yield fs.writeFile(path_1.default.join(workDir, 'config', 'minecraft-server-auto-closer.txt'), configData);
+    });
+}
+function fixRunBat(workDir) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const batPath = path_1.default.join(workDir, 'run.bat');
+            const bat = yield fs.readFile(batPath, 'utf-8');
+            const fixed = bat
+                .split(/\r\n|\r|\n/g)
+                .filter(x => x.split(' ')[0] !== 'pause')
+                .join('\n');
+            core.info(`fixed bat file: "${fixed}"`);
+            yield fs.writeFile(batPath, fixed);
+        }
+        catch (e) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (e && e.code && e.code === 'ENOENT') {
+                return;
+            }
+            // rethrow
+            throw e;
+        }
     });
 }
 function signEula(workDir) {
@@ -116,11 +132,15 @@ function prepareEnvironment(params) {
             core.info('copying world data directory');
             yield fs.copy(params.worldData, path_1.default.join(params.workDir, 'world'));
         }
+        else if (params.sleepTimeConfig === 'before world') {
+            // if before world, no 'no world data specified!' warning
+        }
         else {
             core.warning("no world data specified! It's recommended to " +
                 'prepare a simple vanilla world data to prevent world generation!');
         }
-        yield prepareMinecraftServerAutoCloser(params.workDir, params.minecraftServerAutoCloserPath, params.sleepTimeConfig, versionInfo.minecraftVersion);
+        yield prepareMinecraftServerAutoCloser(params.workDir, params.minecraftServerAutoCloserPath, params.sleepTimeConfig);
+        yield fixRunBat(params.workDir);
         yield signEula(params.workDir);
         return versionInfo.launch;
     });

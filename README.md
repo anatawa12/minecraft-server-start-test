@@ -12,7 +12,7 @@ An action to check a mod can be launched with server. currently supports server.
 | server_type  | optional    | forge    | The minecraft server type. by default, and currently supports only forge
 | work_dir     | optional    | (none)   | The path to server working directory. If not specified, this will create temp directory.
 | version      | required    |          | The version of minecraft server. For forge, the version number in installer jar like `1.12.2-14.23.5.2855` or `1.7.10-10.13.4.1614-1.7.10` are valid.
-| sleep_time   | optional    | 0s       | The time before sending 'stop' command after FMLServerStartedEvent. You can specify in seconds or ticks.
+| stop_at      | optional    | 0s       | The time server will start stopping. If it's in seconds or ticks, the command will be sent after the time since FMLServerStartedEvent. If it's 'before world', the server will be stopped before world loading.
 | timeout      | optional    | (none)   | Timeout until server started. if timeout reached, this action will falls
 | world_data   | optional    | (none)   | The path to minecraft world data.
 | mods_dir     | optional    | (none)   | The path to your mods folder.
