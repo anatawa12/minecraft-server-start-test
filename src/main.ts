@@ -29,7 +29,6 @@ async function prepareMinecraftServerAutoCloser(
   workDir: string,
   minecraftServerAutoCloserPath: string,
   configData: string,
-  minecraftVersion: string,
 ): Promise<void> {
   await fs.ensureDir(path.join(workDir, 'mods'))
   const jarPath = path.join(
@@ -44,12 +43,7 @@ async function prepareMinecraftServerAutoCloser(
       repo: 'minecraft-server-auto-closer',
     })
     core.info(`using minecraft server auto closer: ${release.data.name}`)
-    let pattern: RegExp
-    if (Number(minecraftVersion.split('.')[1]) <= 12) {
-      pattern = /^minecraft-server-auto-closer-[0-9.]+\.jar$/
-    } else {
-      pattern = /^minecraft-server-auto-closer-post1\.13-[0-9.]+\.jar$/
-    }
+    const pattern = /^minecraft-server-auto-closer-[0-9.]+\.jar$/
     const asset = release.data.assets.find(x => pattern.test(x.name))
     if (!asset)
       throw new Error(
@@ -75,6 +69,26 @@ async function prepareMinecraftServerAutoCloser(
     path.join(workDir, 'config', 'minecraft-server-auto-closer.txt'),
     configData,
   )
+}
+
+async function fixRunBat(workDir: string): Promise<void> {
+  try {
+    const batPath = path.join(workDir, 'run.bat')
+    const bat = await fs.readFile(batPath, 'utf-8')
+    const fixed = bat
+      .split(/\r\n|\r|\n/g)
+      .filter(x => x.split(' ')[0] !== 'pause')
+      .join('\n')
+    core.info(`fixed bat file: "${fixed}"`)
+    await fs.writeFile(batPath, fixed)
+  } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (e && (e as any).code && (e as any).code === 'ENOENT') {
+      return
+    }
+    // rethrow
+    throw e
+  }
 }
 
 async function signEula(workDir: string): Promise<void> {
@@ -106,6 +120,8 @@ async function prepareEnvironment(
   if (params.worldData !== '') {
     core.info('copying world data directory')
     await fs.copy(params.worldData, path.join(params.workDir, 'world'))
+  } else if (params.sleepTimeConfig === 'before world') {
+    // if before world, no 'no world data specified!' warning
   } else {
     core.warning(
       "no world data specified! It's recommended to " +
@@ -117,8 +133,9 @@ async function prepareEnvironment(
     params.workDir,
     params.minecraftServerAutoCloserPath,
     params.sleepTimeConfig,
-    versionInfo.minecraftVersion,
   )
+
+  await fixRunBat(params.workDir)
 
   await signEula(params.workDir)
 

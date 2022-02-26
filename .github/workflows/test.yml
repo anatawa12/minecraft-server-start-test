@@ -27,9 +27,11 @@ jobs:
     needs: [build]
     strategy:
       matrix: 
+        stop_at:
+          - '0s'
+          - 'before world'
         version:
-          # waiting for closer
-          #- "17:1.17.1-37.1.1"
+          - "17:1.17.1-37.1.1"
           - "8:1.16.5-36.2.29"
           - "8:1.12.2-14.23.5.2860"
           - "8:1.7.10-10.13.4.1614-1.7.10"
@@ -59,6 +61,7 @@ jobs:
 
       - uses: ./
         with:
+          stop_at: ${{ matrix.stop_at }}
           version: ${{ steps.configure_version.outputs.mc_version }}
 
   conclude:
