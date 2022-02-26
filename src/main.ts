@@ -71,6 +71,14 @@ async function prepareMinecraftServerAutoCloser(
   )
 }
 
+async function preparePauseExe(workDir: string): Promise<void> {
+  // copy pause.exe to prevent hang by calling pause in run.bat
+  await fs.copy(
+    path.join(__dirname, '..', 'pause.exe'),
+    path.join(workDir, 'pause.exe'),
+  )
+}
+
 async function signEula(workDir: string): Promise<void> {
   await fs.writeFile(path.join(workDir, 'eula.txt'), `eula=true${EOL}`)
 }
@@ -114,6 +122,8 @@ async function prepareEnvironment(
     params.minecraftServerAutoCloserPath,
     params.sleepTimeConfig,
   )
+
+  await preparePauseExe(params.workDir)
 
   await signEula(params.workDir)
 
