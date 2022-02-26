@@ -120,6 +120,10 @@ export function parseProvider(
 }
 
 function parseSleepTime(sleep_time: string): string {
+  const matchForBefore = sleep_time.match(/^before\s+(\w+)/)
+  if (matchForBefore) {
+    return `before ${matchForBefore[0]}`
+  }
   const timeRegex = /^(\d+)(s|t|second|seconds|tick|ticks)$/
   const match = sleep_time.match(timeRegex)
   if (!match) throw new Error(`invalid sleep_time: ${sleep_time}`)
@@ -151,7 +155,7 @@ export async function parseParameters(): Promise<ActionParameters> {
   const server_type = core.getInput('server_type')
   const version = core.getInput('version')
   const work_dir = core.getInput('work_dir')
-  const sleep_time = core.getInput('sleep_time')
+  const stop_at = core.getInput('sleep_time') || core.getInput('stop_at')
   const timeout = core.getInput('timeout')
   const world_data = core.getInput('world_data')
   const mods_dir = core.getInput('mods_dir')
@@ -165,7 +169,7 @@ export async function parseParameters(): Promise<ActionParameters> {
   return {
     serverProvider: parseProvider(server_type, version),
     workDir: await parseWorkDir(work_dir),
-    sleepTimeConfig: parseSleepTime(sleep_time),
+    sleepTimeConfig: parseSleepTime(stop_at),
     timeout:
       timeout === ''
         ? null
