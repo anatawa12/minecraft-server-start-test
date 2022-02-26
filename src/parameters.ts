@@ -122,7 +122,7 @@ export function parseProvider(
 function parseSleepTime(sleep_time: string): string {
   const matchForBefore = sleep_time.match(/^before\s+(\w+)/)
   if (matchForBefore) {
-    return `before ${matchForBefore[0]}`
+    return `before ${matchForBefore[1]}`
   }
   const timeRegex = /^(\d+)(s|t|second|seconds|tick|ticks)$/
   const match = sleep_time.match(timeRegex)
