@@ -100,6 +100,8 @@ async function prepareEnvironment(
   if (params.worldData !== '') {
     core.info('copying world data directory')
     await fs.copy(params.worldData, path.join(params.workDir, 'world'))
+  } else if (params.sleepTimeConfig === 'before world') {
+    // if before world, no 'no world data specified!' warning
   } else {
     core.warning(
       "no world data specified! It's recommended to " +
