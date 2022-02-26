@@ -71,6 +71,26 @@ async function prepareMinecraftServerAutoCloser(
   )
 }
 
+async function fixRunBat(workDir: string): Promise<void> {
+  try {
+    const batPath = path.join(workDir, 'run.bat')
+    const bat = await fs.readFile(batPath, 'utf-8')
+    const fixed = bat
+      .split(/\r\n|\r|\n/g)
+      .filter(x => x.split(' ')[0] !== 'pause')
+      .join('\n')
+    core.info(`fixed bat file: "${fixed}"`)
+    await fs.writeFile(batPath, fixed)
+  } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (e && (e as any).code && (e as any).code === 'ENOENT') {
+      return
+    }
+    // rethrow
+    throw e
+  }
+}
+
 async function signEula(workDir: string): Promise<void> {
   await fs.writeFile(path.join(workDir, 'eula.txt'), `eula=true${EOL}`)
 }
@@ -114,6 +134,8 @@ async function prepareEnvironment(
     params.minecraftServerAutoCloserPath,
     params.sleepTimeConfig,
   )
+
+  await fixRunBat(params.workDir)
 
   await signEula(params.workDir)
 
