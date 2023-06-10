@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as fs from 'fs-extra'
 import {ActionParameters, LaunchConfig, parseParameters} from './parameters'
 import {EOL} from 'os'
+import * as github from '@actions/github'
 import {GitHub} from '@actions/github/lib/utils'
 import {exec} from '@actions/exec'
 import fetch from 'node-fetch'
@@ -29,6 +30,7 @@ async function prepareMinecraftServerAutoCloser(
   workDir: string,
   minecraftServerAutoCloserPath: string,
   configData: string,
+  githubToken: string,
 ): Promise<void> {
   await fs.ensureDir(path.join(workDir, 'mods'))
   const jarPath = path.join(
@@ -37,7 +39,7 @@ async function prepareMinecraftServerAutoCloser(
     '.com.anatawa12.minecraft-server-start-test.minecraft-server-auto-closer.jar',
   )
   if (minecraftServerAutoCloserPath === '') {
-    const octokit = new GitHub()
+    const octokit = githubToken ? github.getOctokit(githubToken) : new GitHub()
     const release = await octokit.rest.repos.getLatestRelease({
       owner: 'anatawa12',
       repo: 'minecraft-server-auto-closer',
@@ -133,6 +135,7 @@ async function prepareEnvironment(
     params.workDir,
     params.minecraftServerAutoCloserPath,
     params.sleepTimeConfig,
+    params.githubToken,
   )
 
   await fixRunBat(params.workDir)
