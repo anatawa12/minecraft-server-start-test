@@ -43,7 +43,7 @@ jobs:
           - ubuntu-latest
           - windows-latest
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: built
       - name: Configure Version
