@@ -38,6 +38,7 @@ export interface ActionParameters {
 
   // undocumented
   minecraftServerAutoCloserPath: string
+  githubToken: string
 }
 
 export function parseProvider(
@@ -165,6 +166,7 @@ export async function parseParameters(): Promise<ActionParameters> {
   const minecraft_server_auto_closer_path = core.getInput(
     'minecraft_server_auto_closer_path',
   )
+  const github_token = core.getInput('github_token')
 
   return {
     serverProvider: parseProvider(server_type, version),
@@ -180,6 +182,7 @@ export async function parseParameters(): Promise<ActionParameters> {
     configFile: config_file,
     configDir: config_dir,
     minecraftServerAutoCloserPath: minecraft_server_auto_closer_path,
+    githubToken: github_token,
   }
 }
 
