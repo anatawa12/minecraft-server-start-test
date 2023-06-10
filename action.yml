@@ -45,8 +45,12 @@ inputs:
   minecraft_server_auto_closer_path:
     required: false
     description: The path to your config jar. This will be added to config directory.
+  github_token:
+    required: false
+    default: ${{ github.token }}
+    description: The github api token to get latest version of closer
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
 outputs:
   work_dir:
