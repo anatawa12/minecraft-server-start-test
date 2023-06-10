@@ -36,7 +36,7 @@ jobs:
       - uses: anatawa12/something-releaser@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: '16'
           cache: 'npm'
 
       # building
