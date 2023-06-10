@@ -46,7 +46,7 @@ inputs:
     required: false
     description: The path to your config jar. This will be added to config directory.
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
 outputs:
   work_dir:
